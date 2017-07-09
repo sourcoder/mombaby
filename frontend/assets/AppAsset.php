@@ -14,12 +14,10 @@ class AppAsset extends AssetBundle
     public $css = [
        // 'css/site.css',
         'css/index.css',//主页的css文件
-        'css/swiper.min.css'
+     //   'css/swiper.min.css'
     ];
     public $js = [
         'js/index.js',
-        //'js/jquery-1.10.1.min.js',
-        //'js/swiper.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

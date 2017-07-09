@@ -5,6 +5,7 @@
 $this->title = '饮食助手';
 $this->registerJsFile('@web/js/swiper.min.js',['position'=>\yii\web\View::POS_HEAD]);
 $this->registerJsFile('@web/js/jquery-1.10.1.min.js',['position'=>\yii\web\View::POS_HEAD]);
+$this->registerCssFile('@web/css/swiper.min.css',['position'=>\yii\web\View::POS_HEAD]);
 ?>
 <style>
 * {
@@ -51,7 +52,7 @@ $this->registerJsFile('@web/js/jquery-1.10.1.min.js',['position'=>\yii\web\View:
 	function showHide()
 	{
 		document.getElementById("nutrition-text-hide").style.display="inline";
-		document.getElementById("nutrition-more").style.display="inline";
+		document.getElementById("nutrition-more").style.display="none";
 	}
 </script>
 <div id="topNav" class="swiper-container swiper-container-horizontal swiper-container-free-mode">
