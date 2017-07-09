@@ -18,8 +18,8 @@ class AppAsset extends AssetBundle
     ];
     public $js = [
         'js/index.js',
-        'js/jquery-1.10.1.min.js',
-        'js/swiper.min.js',
+        //'js/jquery-1.10.1.min.js',
+        //'js/swiper.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

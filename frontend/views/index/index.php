@@ -3,6 +3,8 @@
 /* @var $this yii\web\View */
 
 $this->title = '饮食助手';
+$this->registerJsFile('@web/js/swiper.min.js',['position'=>\yii\web\View::POS_HEAD]);
+$this->registerJsFile('@web/js/jquery-1.10.1.min.js',['position'=>\yii\web\View::POS_HEAD]);
 ?>
 <style>
 * {
