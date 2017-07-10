@@ -29,9 +29,15 @@ class ComposerStaticInit375bd6bed08d02b8972c5647859cfa1b
         array (
             'phpDocumentor\\Reflection\\' => 25,
         ),
+        'k' => 
+        array (
+            'kartik\\datetime\\' => 16,
+            'kartik\\base\\' => 12,
+        ),
         'c' => 
         array (
             'cebe\\markdown\\' => 14,
+            'callmez\\wechat\\sdk\\' => 19,
         ),
         'W' => 
         array (
@@ -109,9 +115,21 @@ class ComposerStaticInit375bd6bed08d02b8972c5647859cfa1b
             1 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
         ),
+        'kartik\\datetime\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kartik-v/yii2-widget-datetimepicker',
+        ),
+        'kartik\\base\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/kartik-v/yii2-krajee-base',
+        ),
         'cebe\\markdown\\' => 
         array (
             0 => __DIR__ . '/..' . '/cebe/markdown',
+        ),
+        'callmez\\wechat\\sdk\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/callmez/yii2-wechat-sdk',
         ),
         'Webmozart\\Assert\\' => 
         array (

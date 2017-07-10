@@ -5,8 +5,9 @@
 $this->title = '饮食助手';
 $this->registerJsFile('@web/js/swiper.min.js',['position'=>\yii\web\View::POS_HEAD]);
 $this->registerJsFile('@web/js/jquery-1.10.1.min.js',['position'=>\yii\web\View::POS_HEAD]);
-$this->registerCssFile('@web/css/swiper.min.css',['position'=>\yii\web\View::POS_HEAD]);
+//$this->registerCssFile('@web/css/swiper.min.css',['position'=>\yii\web\View::POS_HEAD]);
 ?>
+<link href="/css/swiper.min.css" rel="stylesheet">
 <style>
 * {
 	margin: 0;
