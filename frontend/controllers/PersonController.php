@@ -36,18 +36,45 @@ class PersonController extends Controller
     public function actionInfo()
     {
         $model = new Userinfo();
-        if ($model->load(Yii::$app->request->post()) && $model->validate())
+        $post = Yii::$app->request->post();
+        if ($model->load($post) && $model->validate())
         {
+            echo 'hah';
+            $model->tall = $post['tall'];
+            $model->weight = $post['weight'];
+            $model->age = $post['age'];
+            $model->last_menses_time = $post['last_menses_time'];
+            $add = "+10 mouth +7 day";
+            $model->due_date = date('Y-m-d',strtotime($add));
+            $Date_List_a1=explode("-",$post['last_menses_time']);
+            $d1=mktime(0,0,0,$Date_List_a1[1],$Date_List_a1[2],$Date_List_a1[0]);
+            $days = (time()-d1)/3600/24;
+            $model->current_month = ($days / 30)+1;
+            $model->current_week = ($days / 7)+1;
             if(!$model->save())
             {
-                Yii::$app->session->setFlash('warning', "产生错误啦！");
+                echo "错误";
+                Yii::$app->session->setFlash('warning', $model->_lastError);
             }
             else {
-                Yii::$app->session->setFlash('success', "成功啦！");
                 return $this->redirect(['person/index']);
             }
-        }
+        }else 
+            echo "here ";
         return $this->render('info', ["model" => $model]);
+    }
+    public function actionSave()
+    {
+        $model = new Userinfo();
+        $post = \Yii::$app->request->post();
+        if(!$model->saveInfo($post))
+        {
+            Yii::$app->session->setFlash('warning', "产生错误啦！");
+        }
+        else {
+            Yii::$app->session->setFlash('success', "成功啦！");
+            return $this->redirect(['person/index']);
+        }
     }
 }
 
