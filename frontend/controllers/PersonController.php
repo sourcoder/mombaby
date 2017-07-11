@@ -12,7 +12,9 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
-
+use yii\base\Object;
+use common\models\Userinfo;
+use yii\bootstrap\Alert;
 /**
  * Person controller
  */
@@ -27,4 +29,27 @@ class PersonController extends Controller
     {
         return $this->render('food');
     }
+    public function actionShop()
+    {
+        return $this->render('shop');
+    }
+    public function actionInfo()
+    {
+        $model = new Userinfo();
+        if ($model->load(Yii::$app->request->post()) && $model->validate())
+        {
+            if(!$model->save())
+            {
+                Yii::$app->session->setFlash('warning', "产生错误啦！");
+            }
+            else {
+                Yii::$app->session->setFlash('success', "成功啦！");
+                return $this->redirect(['person/index']);
+            }
+        }
+        return $this->render('info', ["model" => $model]);
+    }
 }
+
+
+

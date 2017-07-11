@@ -6,10 +6,6 @@ $this->title = "详细做法";
 <!--
 
 -->
-#top img{
-	width:100%;
-	height:200px;
-}
 .tag{
 	width:100%;
 	height:60px;
