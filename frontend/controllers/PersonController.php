@@ -40,15 +40,19 @@ class PersonController extends Controller
         if ($model->load($post) && $model->validate())
         {
             echo 'hah';
+            $post = $post['Userinfo'];
+            var_dump($post);
             $model->tall = $post['tall'];
             $model->weight = $post['weight'];
             $model->age = $post['age'];
             $model->last_menses_time = $post['last_menses_time'];
-            $add = "+10 mouth +7 day";
+            
+            $add = "+10 month +7 day";
             $model->due_date = date('Y-m-d',strtotime($add));
+            
             $Date_List_a1=explode("-",$post['last_menses_time']);
             $d1=mktime(0,0,0,$Date_List_a1[1],$Date_List_a1[2],$Date_List_a1[0]);
-            $days = (time()-d1)/3600/24;
+            $days = (time()-$d1)/3600/24;
             $model->current_month = ($days / 30)+1;
             $model->current_week = ($days / 7)+1;
             if(!$model->save())
