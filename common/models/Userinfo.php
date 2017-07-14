@@ -70,6 +70,7 @@ class Userinfo extends \yii\db\ActiveRecord
     
     public function saveInfo($post)
     {
+        print_r($post);exit();
         $this->tall = $post['tall'];
         $this->weight = $post['weight'];
         $this->age = $post['age'];

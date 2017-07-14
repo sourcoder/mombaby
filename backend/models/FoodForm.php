@@ -78,8 +78,7 @@ class FoodForm extends Model
 			$model->detail = $this->detail;
 			$model->image = $this->image;
 			$model->week_id = $this->week_id + 1;
-			$model->image = 'dddd';
-			echo 'dsd';
+			//$model->image = 'frontend.mombaby.com/image/food/2.jpg';
 			if(!$model->save())
 			{
 				throw new \Exception('食物保存失败');
@@ -101,16 +100,17 @@ class FoodForm extends Model
 	 * 得到文章的数据
 	 * @param unknown $id
 	 */
-/*	public function getViewById($id)
+	public function getViewById($id)
 	{
+	    //echo 'haha';
+	   
 		//with是关联查询
-		$res = Food::find()->with('relate.tag','extend')->where(['id' => $id])->asArray()->one();
+		$res = Food::find()->with('relate.tag')->where(['id' => $id])->asArray()->one();
+		//print_r($res); 
 		if(!$res)
 		{
-			throw new \Exception("文章不存在！");
+			throw new \Exception("菜谱不存在！");
 		}
-		
-		
 		if(isset($res['relate']) && !empty($res['relate']))
 		{
 			$res['tags'] = [];
@@ -122,7 +122,6 @@ class FoodForm extends Model
 		unset($res['relate']);
 		return $res; 
 	}
-*/
 	/*
 	 * Food创建完成后调用事件
 	 */

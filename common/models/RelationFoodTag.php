@@ -20,7 +20,14 @@ class RelationFoodTag extends \yii\db\ActiveRecord
     {
         return 'relation_food_tag';
     }
-
+    /*
+     * 关联tag
+     */
+    public function getTag()
+    {
+        return $this->hasOne(Tags::className(), ['id' => 'tag_id']);
+    }
+    
     /**
      * @inheritdoc
      */

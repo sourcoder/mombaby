@@ -36,18 +36,19 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        
         'urlManager' => [
             'enablePrettyUrl' => true,
             //'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
-              //  'class' => 'yii\rest\UrlRule',
-            /*    'controller' => 'wechat',
+            /*    [
+                'class' => 'yii\rest\UrlRule',
+                'controller' => 'wechat',
                 'extraPatterns' => [
-                    'GET valid' => 'valid',
+                    'GET' => 'valid',
                     
-                ],*/
+                ],
+                    ]*/
             ],
         ],
         

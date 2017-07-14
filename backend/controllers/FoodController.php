@@ -16,7 +16,10 @@ use yii\filters\AccessControl;
 class FoodController extends Controller
 {
     
-    public $enableCsrfValidation = false;
+   /* 
+    public $enableCookieValidation = false;
+    
+    */
     /**
      * @inheritdoc
      */
@@ -47,6 +50,7 @@ class FoodController extends Controller
      * 此方法相当于actionUpload  actionUediter
      * @see \yii\base\Controller::actions()
      */
+    public $enableCsrfValidation = false;
     public function actions()
     {
         return [
@@ -109,8 +113,6 @@ class FoodController extends Controller
         {
             if(!$model->create())
 			{
-			    echo 'hello';
-			    
 				Yii::$app->session->setFlash('warning', $model->_lastError);
 			}
 			else {

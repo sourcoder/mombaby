@@ -21,7 +21,8 @@
         "callmez/yii2-wechat-sdk": "dev-master",
         "kartik-v/yii2-widget-datetimepicker": "*",
         "dmstr/yii2-adminlte-asset": "2.*",
-        "kartik-v/yii2-widget-datepicker": "@dev"
+        "kartik-v/yii2-widget-datepicker": "@dev",
+        "maxwen/yii2-easy-wechat": "^1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

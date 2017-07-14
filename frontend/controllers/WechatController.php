@@ -3,254 +3,166 @@
 namespace frontend\controllers;
 
 use Yii;
-use yii\rest\ActiveController;
-use yii\web\Response;
-use yii\filters\Cors;
-use frontend\sdk\WechatPay;
+use yii\web\Controller;
 use frontend\models\WechatUser;
-
-
-class WechatController extends ActiveController
+/**
+ * WechatController implements the CRUD actions for Food model.
+ */
+class WechatController extends Controller
 {
-
-    public $modelClass = '';
-
-    public function behaviors()
+    /**
+     * 主入口
+     */
+    public function actionUser()
     {
-        $behaviors = parent::behaviors();
-        $behaviors['contentNegotiator']['formats']['text/html'] = Response::FORMAT_JSON;
-        $behaviors['corsFilter'] = [
-            'class' => Cors::className(),
-            'cors' => [
-                'Origin' => ['*'],
-                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-                'Access-Control-Request-Headers' => ['*'],
-                'Access-Control-Allow-Credentials' => true,
-                'Access-Control-Max-Age' => 86400,
-            ],
-        ];
-        return $behaviors;
-    }
-
-    //微信服务接入时，服务器需授权验证
-    public function actionValid()
-    {
-        $echoStr = $_GET["echostr"];
-        $signature = $_GET["signature"];
-        $timestamp = $_GET["timestamp"];
-        $nonce = $_GET["nonce"];
-        //valid signature , option
-        if($this->checkSignature($signature,$timestamp,$nonce)){
-            echo $echoStr;
-        }
-    }
-
-    //参数校验
-    private function checkSignature($signature,$timestamp,$nonce)
-    {
-        $token = Yii::$app->params['wechat']['token'];
-        if (!$token) {
-            echo 'TOKEN is not defined!';
-        }else{
-            $tmpArr = array($token, $timestamp, $nonce);
-            // use SORT_STRING rule
-            sort($tmpArr, SORT_STRING);
-            $tmpStr = implode( $tmpArr );
-            $tmpStr = sha1( $tmpStr );
-
-            if( $tmpStr == $signature ){
-                return true;
-            }else{
-                return false;
-            }
-        }
-    }
-
-    //用户授权接口：获取access_token、openId等；获取并保存用户资料到数据库
-    public function actionAccesstoken()
-    {
+        
         $code = $_GET["code"];
-        $state = $_GET["state"];
+        if($code == '2')
+        {
+            $redirect_uri = Yii::$app->params['wechat']['redirect_uri'];
+            $redirect_uri = urlencode($redirect_uri);
+            $appid = Yii::$app->params['wechat']['appid'];
+            $appsecret = Yii::$app->params['wechat']['appsecret'];
+            $url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$redirect_uri}&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect";
+            $this->redirect($url);//重定向后得到code
+        }else
+        {
+            $state = $_GET["state"];
+            $access_token = $this->getAccesstoken($code, $state);
+            //检验授权凭证（access_token）是否有效
+            $data = $this->checkAvail($access_token['access_token'],$access_token['openid']);
+            if($data['errcode'] != '0' || $data['errmsg'] != 'ok')
+            {
+                //刷新access_token
+                $access_token = $this->refresh_access_token($access_token['refresh_token']);
+            }
+            //得到拉取用户信息(需scope为 snsapi_userinfo)
+            $userinfo = $this->get_user_info($access_token['access_token'],$access_token['openid']);
+            //require 'view/index.html';//-------1------这里根据具体情况去修改
+            /**************************************************/
+   /*       //测试输出    
+            var_dump($userinfo);
+            echo "昵称:".$userinfo['nickname'];
+            echo "<br/>";
+            echo "性别:".$userinfo['sex']; echo "<br/>";
+            echo "国家:".$userinfo['country']; echo "<br/>";
+            echo "省份:".$userinfo['province']; echo "<br/>";
+            echo "城市:".$userinfo['city']; echo "<br/>";
+            echo "----------头像--------------" ;echo "<br/>";
+            echo  '<img src="'.$userinfo['headimgurl'].'" />'; 
+            echo 'hahha';
+            */
+            $openid = $userinfo['openid'];
+            //检查用户是否已经存在于数据表中 
+            $user_check = WechatUser::find()->where(['openid'=>$openid])->one();
+            if ($user_check) 
+            {
+                /*-------wechat User 表中的数据---------*/
+                //更新用户资料
+                $user_check->nickname = $userinfo['nickname'];
+                $user_check->sex = $userinfo['sex'];
+                $user_check->headimgurl = $userinfo['headimgurl'];
+                $user_check->country = $userinfo['country'];
+                $user_check->province = $userinfo['province'];
+                $user_check->city = $userinfo['city'];
+                $user_check->access_token = $access_token['access_token'];
+                $user_check->refresh_token = $access_token['refresh_token'];
+                $user_check->update();
+                $id = $user_check->id;
+            } 
+            else 
+            {
+                /*-------wechat User 表中的数据---------*/
+                //保存用户资料
+                $user = new WechatUser();
+                $user->nickname = $userinfo['nickname'];
+                $user->sex = $userinfo['sex'];
+                $user->headimgurl = $userinfo['headimgurl'];
+                $user->country = $userinfo['country'];
+                $user->province = $userinfo['province'];
+                $user->city = $userinfo['city'];
+                $user->access_token = $access_token['access_token'];
+                $user->refresh_token = $access_token['refresh_token'];
+                $user->openid = $openid;
+                $user->created_at = time();
+                $user->save();            
+                $id = $user->id;
+            }
+            $this->redirect(["person/info", 'id' => $id]);
+        }
+    }
+    /*
+     * 第二步：由code得到access_token
+     */
+    public function getAccesstoken($code, $state) 
+    {
         $appid = Yii::$app->params['wechat']['appid'];
         $appsecret = Yii::$app->params['wechat']['appsecret'];
         $request_url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid='.$appid.'&secret='.$appsecret.'&code='.$code.'&grant_type=authorization_code';
-        //初始化一个curl会话
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $request_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $result = $this->response($result);
-        //获取token和openid成功，数据解析
-        $access_token = $result['access_token'];
-        $refresh_token = $result['refresh_token'];
-        $openid = $result['openid'];
-
-        //请求微信接口，获取用户信息
-        $userInfo = $this->getUserInfo($access_token,$openid);
-
-        $user_check = WechatUser::find()->where(['openid'=>$openid])->one();
-        if ($user_check) {
-            //更新用户资料
-            $user_check->nickname = $userInfo['nickname'];
-            $user_check->sex = $userInfo['sex'];
-            $user_check->headimgurl = $userInfo['headimgurl'];
-            $user_check->country = $userInfo['country'];
-            $user_check->province = $userInfo['province'];
-            $user_check->city = $userInfo['city'];
-            $user_check->access_token = $access_token;
-            $user_check->refresh_token = $refresh_token;
-            $user_check->update();
-        } else {
-            //保存用户资料
-            $user = new WechatUser();
-            $user->nickname = $userInfo['nickname'];
-            $user->sex = $userInfo['sex'];
-            $user->headimgurl = $userInfo['headimgurl'];
-            $user->country = $userInfo['country'];
-            $user->province = $userInfo['province'];
-            $user->city = $userInfo['city'];
-            $user->access_token = $access_token;
-            $user->refresh_token = $refresh_token;
-            $user->openid = $openid;
-            $user->save();
-        }
-        //前端网页的重定向
-        if ($openid) {
-            return $this->redirect($state.$openid);
-        } else {
-            return $this->redirect($state);
-        }
+        $access_token = $this->https_request($request_url);
+        $arr = json_decode($access_token,true);
+        return $arr;
     }
-
-    //从微信获取用户资料
-    public function getUserInfo($access_token,$openid)
+    /*
+     *
+     *  刷新access_token（如果需要）
+     *
+     * */
+    private function refresh_access_token($refresh_token)
     {
-        $request_url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
-        //初始化一个curl会话
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $request_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $result = $this->response($result);
-        return $result;
+        //三步：刷新access_token（如果需要）
+        $refresh_url = "https://api.weixin.qq.com/sns/oauth2/refresh_token?appid=".$this->appid."&grant_type=refresh_token&refresh_token={$refresh_token}";
+        $access_token = $this->https_request($refresh_url);
+        return json_decode($access_token,true);
     }
-
-    //获取用户资料接口
-    public function actionUserinfo()
+    
+    public function https_request($url,$data = null)
     {
-        if(isset($_REQUEST["openid"])){
-            $openid = $_REQUEST["openid"];
-            $user = WechatUser::find()->where(['openid'=>$openid])->one();
-            if ($user) {
-                $result['error'] = 0;
-                $result['msg'] = '获取成功';
-                $result['user'] = $user;
-            } else {
-                $result['error'] = 1;
-                $result['msg'] = '没有该用户';
-            }
-        } else {
-            $result['error'] = 1;
-            $result['msg'] = 'openid为空';
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        if (!empty($data))
+        {
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
         }
-        return $result;
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $output = curl_exec($curl);
+        if(curl_errno($curl)) {return 'ERROR '.curl_error($curl);}
+        curl_close($curl);
+        return $output;
     }
-
-    private function response($text)
+    /**
+     *检验授权凭证（access_token）是否有效
+     * @param string $access_token
+     * @param string $open_id
+     **/
+    private function checkAvail($access_token='',$openid='')
     {
-        return json_decode($text, true);
+        if($access_token && $openid)
+        {
+            $avail_url = "https://api.weixin.qq.com/sns/auth?access_token={$access_token}&openid={$openid}";
+            $avail_data = $this->https_request($avail_url);
+            return json_decode($avail_data, TRUE);
+        }
+        return FALSE;
     }
-
-    //微信支付接口：打包支付数据
-    public function actionPay(){
-        if(isset($_REQUEST["uid"])&&isset($_REQUEST["oid"])&&isset($_REQUEST["totalFee"])&&isset($_REQUEST["orderName"])){
-            //uid、oid
-            $uid = $_REQUEST["uid"];
-            $oid = $_REQUEST["oid"];
-            //微信支付参数
-            $appid = Yii::$app->params['wechat']['appid'];
-            $mchid = Yii::$app->params['wechat']['mchid'];
-            $key = Yii::$app->params['wechat']['key'];
-            $notifyUrl = Yii::$app->params['wechat']['notifyUrl'];
-            //商品订单参数
-            $totalFee = $_REQUEST["totalFee"];
-            $orderName = $_REQUEST["orderName"];
-            //支付打包
-            $wx_pay = new WechatPay($mchid, $appid, $key);
-            $package = $wx_pay->createJsBizPackage($uid, $totalFee, $oid, $orderName, $notifyUrl, $timestamp);
-            $result['error'] = 0;
-            $result['msg'] = '支付打包成功';
-            $result['package'] = $package;
-        }else{
-            $result['error'] = 1;
-            $result['msg'] = '请求参数错误';
+    /**
+     * 获取授权后的微信用户信息
+     *oauth2.0
+     * @param string $access_token
+     * @param string $open_id
+     **/
+    public function get_user_info($access_token = '', $open_id = '')
+    {
+        // 第四步：拉取用户信息(需scope为 snsapi_userinfo)
+        if($access_token && $open_id)
+        {
+            $info_url = "https://api.weixin.qq.com/sns/userinfo?access_token={$access_token}&openid={$open_id}&lang=zh_CN";
+            $info_data = $this->https_request($info_url);
+            return json_decode($info_data, TRUE);
         }
-        return $result;
+        return FALSE;
     }
-
-    public function actionConfig(){
-        if (isset($_REQUEST['url'])) {
-            $url = $_REQUEST['url'];
-            //微信支付参数
-            $appid = Yii::$app->params['wechat']['appid'];
-            $mchid = Yii::$app->params['wechat']['mchid'];
-            $key = Yii::$app->params['wechat']['key'];
-            $wx_pay = new WechatPay($mchid, $appid, $key);
-            $package = $wx_pay->getSignPackage($url);
-            $result['error'] = 0;
-            $result['msg'] = '获取成功';
-            $result['config'] = $package;
-        } else {
-            $result['error'] = 1;
-            $result['msg'] = '参数错误';
-        }
-        return $result;
-    }
-
-    //接收微信发送的异步支付结果通知
-    public function actionNotify(){
-        $postStr = $GLOBALS["HTTP_RAW_POST_DATA"];
-        $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-        //
-        if ($postObj === false) {
-            die('parse xml error');
-        }
-        if ($postObj->return_code != 'SUCCESS') {
-            die($postObj->return_msg);
-        }
-        if ($postObj->result_code != 'SUCCESS') {
-            die($postObj->err_code);
-        }
-
-        //微信支付参数
-        $appid = Yii::$app->params['wechat']['appid'];
-        $mchid = Yii::$app->params['wechat']['mchid'];
-        $key = Yii::$app->params['wechat']['key'];
-        $wx_pay = new WechatPay($mchid, $appid, $key);
-
-        //验证签名
-        $arr = (array)$postObj;
-        unset($arr['sign']);
-        if ($wx_pay->getSign($arr, $key) != $postObj->sign) {
-            die("签名错误");
-        }
-
-        //支付处理正确-判断是否已处理过支付状态
-        $orders = Order::find()->where(['uid'=>$postObj->openid, 'oid'=>$postObj->out_trade_no, 'status' => 0])->all();
-        if(count($orders) > 0){
-            //更新订单状态
-            $products = array();
-            foreach ($orders as $order) {
-                $order['status'] = 1;
-                $order->update();
-            }
-            return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-        } else {
-            //订单状态已更新，直接返回
-            return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-        }
-    }
-
 }

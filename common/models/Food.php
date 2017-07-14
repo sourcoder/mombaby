@@ -4,6 +4,7 @@ namespace common\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use common\models\RelationFoodTag;
 /**
  * This is the model class for table "food".
  *
@@ -48,5 +49,12 @@ class Food extends ActiveRecord
             'title' => '名称',
             'detail' => '详细步骤',
         ];
+    }
+    /**
+     * 关联关系
+     */
+    public function getRelate()
+    {
+        return $this->hasMany(RelationFoodTag::className(), ['food_id' => 'id']);
     }
 }
