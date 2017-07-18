@@ -27,17 +27,22 @@ if( Yii::$app->getSession()->hasFlash('success') ) {
 }
 </style>
 <div id="head">
-    <div id = "due_time"><h4><p class="text-center">预产日期：2018年02月08日</p><h4></div>
-    <div><img src="../image/avatar.jpeg" alt="here is avatar" style = "whdth:100px;height:100px" class="img-circle center-block"></div>
-    <div><p class="text-center">hello <span>Lina</span></p></div>
-    <div><h4><p  class="text-center">孕十周+4天</p></h4></div>
+<?php 
+//处理data中的日期问题
+$due_date = $userinfo['due_date'];
+$due_date = explode('-', $due_date);
+?>
+    <div id = "due_time"><h4><p class="text-center">预产日期：<?=$due_date[0]?>年<?=$due_date[1]?>月<?=$due_date[2]?>日</p><h4></div>
+    <div><img src="<?=$userinfo['headimgurl']?>" alt="here is avatar" style = "whdth:100px;height:100px" class="img-circle center-block"></div>
+    <div><p class="text-center">hello <span><?=$userinfo['nickname']?></span></p></div>
+    <div><h4><p  class="text-center">孕<?=$userinfo['current_week']?>周</p></h4></div>
     </div>
 </div>
 <div id = "nutrition">
     <div class="panel panel-default">
       <div class="panel-heading">营养要点</div>
       <div class="panel-body">
-       补叶酸，同时要保证充足的热量和优质蛋白质的供给，还要摄入充足的无机盐、微量元素和适量的维生素，如钙、铁、锌铜、碘及维生素A、维生素D等。
+       <?=$nuinfo['nutrition']?>
       </div>
     </div>
 </div>
@@ -45,28 +50,22 @@ if( Yii::$app->getSession()->hasFlash('success') ) {
   <div class="panel panel-default">
   <!-- Default panel contents -->
   <div class="panel-heading">推荐食谱</div>
+  <?php foreach ($foods as $food){?>
     <div class="media recipe-item">
           <div class="media-left">
-              <img class="media-object" style="width:100px;height:100px" src="../image/food/2.jpg" alt="...">
+              <img class="media-object" style="width:100px;height:80px" src="<?=$food['image']?>" alt="...">
           </div>
           <div class="media-body">
-            <h4 class="media-heading">西兰花拌木耳</h4>
-            <span class="label label-default">富含纤维</span>
-            <span class="label label-default">富含维生素A</span>
-            <span class="label label-default">富含维生素C</span>
+            <a href = "food?id=<?=$food['id']?>">
+              <h3 class="media-heading"><?=$food['title']?></h3>
+            </a>
+            <h4>
+                <?php foreach ($food['tags'] as $tag){?>
+                <span class="label label-success text-left" style="padding:3px;margin:5px"><?=$tag?></span>
+                <?php }?>
+            </h4>
           </div>
         </div>
-        <div class="media recipe-item">
-          <div class="media-left">
-              <img class="media-object" style="width:100px;height:100px" src="../image/food/1-172.jpg" alt="...">
-          </div>
-          <div class="media-body">
-            <h4 class="media-heading">姜汁菠菜</h4>
-            <span class="label label-default">富含纤维</span>
-            <span class="label label-default">富含维生素A</span>
-            <span class="label label-default">富含维生素C</span>
-          </div>
-        </div>
-
+    <?php }?>        
     </div>
 </div>

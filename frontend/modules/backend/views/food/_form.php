@@ -24,13 +24,18 @@ use yii\widgets\ActiveForm;
         'config'=>[
         ]    
     ])?>
-    <?= $form->field($model, 'detail')->widget('common\widgets\ueditor\Ueditor',[
+    <?php /* echo $form->field($model, 'detail')->widget('common\widgets\ueditor\Ueditor',[
     		'options'=>[
      		//   'initialFrameWidth' => 850,
     			'initialFrameHeight' => 400,
    			 ]
-		]) ?>
-    <?=$form->field($model, 'tags')->Widget('common\widgets\tags\Tags')?>
+		]) */?>
+		<?=$form->field($model, 'detail')->widget('common\widgets\file_upload\FileUpload',[
+        'config'=>[
+           // 'domain_url' => 'http://www.sdorms.com/',
+        ]
+    	])?>
+    <?php //$form->field($model, 'tags')->Widget('common\widgets\tags\Tags')?>
     <div class = "form-group">
 			<?= Html::submitButton("保存", ['class' => 'btn btn-success'])?>
 	</div>

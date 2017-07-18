@@ -7,6 +7,9 @@ use yii\widgets\ActiveForm;
 /* @var $model common\models\Food */
 
 $this->title = '新建推荐食谱';
+$this->params['breadcrumbs'][] = ['label' => 'Foods', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => $model->title, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = 'create';
 ?>
 <div class="food-create">
     <?php /*$this->render('_form', [
@@ -26,14 +29,19 @@ $this->title = '新建推荐食谱';
     
         <?= $form->field($model, 'image')->widget('common\widgets\file_upload\FileUpload',[
         'config'=>[
-            'domain_url' => 'http://frontend.mombaby.com/',
+           // 'domain_url' => 'http://www.sdorms.com/',
         ]
     ]) ?>
-        <?= $form->field($model, 'detail')->widget('common\widgets\ueditor\Ueditor',[
+        <?php /* $form->field($model, 'detail')->widget('common\widgets\ueditor\Ueditor',[
         		'options'=>[
         			'initialFrameHeight' => 400,
        			 ]
-    		]) ?>
+    		]) */?>
+    	<?=$form->field($model, 'detail')->widget('common\widgets\file_upload\FileUpload',[
+        'config'=>[
+           // 'domain_url' => 'http://www.sdorms.com/',
+        ]
+    	])?>
     		    <?=$form->field($model, 'tags')->Widget('common\widgets\tags\Tags')?>
         <div class = "form-group">
     			<?= Html::submitButton("保存", ['class' => 'btn btn-success'])?>

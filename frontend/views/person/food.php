@@ -9,6 +9,7 @@ $this->title = "详细做法";
 .tag{
 	width:100%;
 	height:60px;
+	background-color:pink;
 }
 .tag span{
 	height:30px;
@@ -34,15 +35,15 @@ img{
 }
 </style>
 <div id="top">
-    <img src="<?=$data['image']?>" class="img-responsive" alt="Responsive image">
+    <img src="<?=$data['detail']?>" class="img-responsive" alt="Responsive image">
 </div>
 <div class="text-center food-intro">
-    <h2><?=$data['title']?></h2>
-    <div class = "tag">
-        <?php foreach ($data['tags'] as $tag){?>
-        <span class="label label-success"><?=$tag?></span>
-        <?php }?>
-    </div>
+    <h2><?php //echo $data['title']?></h2>
+<!--     <div class = "tag"> -->
+        <?php //foreach ($data['tags'] as $tag){?>
+        <span class="label label-success"><?php //echo $tag?></span>
+        <?php //}?>
+<!--     </div> -->
 <!--     <div class="row food-attr"> -->
 <!--       <div class="col-xs-6"><p class="text-left">时间：30~60分钟</p></div> -->
 <!--       <div class="col-xs-6"><p class="text-left">难度：30~60分钟</p></div> -->
@@ -72,15 +73,28 @@ img{
 <!--        </tr> -->
 <!--       </table> -->
 <!--     </div> -->
-</div>
+<!-- </div> -->
 
-<div class="food-steps">
-    <div class="panel panel-default">
+<!-- <div class="food-steps"> -->
+<!--     <div class="panel panel-default"> -->
       <!-- Default panel contents -->
-      <div class="panel-heading">步骤</div>
+<!--       <div class="panel-heading">步骤</div> -->
       <!-- List group -->
-      <ol class="list-group">
-        <?=$data['detail']?>
-      </ol>
-</div>
-</div>
+<!--       <ol class="list-group"> -->
+<!--          <li class="list-group-item"> -->
+<!--             <img src="" class="img-responsive" alt="Responsive image"> -->
+<!--             <span>1.很多书科技活动可减少德鲁克说极度恐慌</span> -->
+<!--          </li> -->
+<!--       </ol> -->
+<!-- </div> -->
+
+<!-- <div class="food-steps"> -->
+<!--     <div class="panel panel-default"> -->
+      <!-- Default panel contents -->
+<!--       <div class="panel-heading">步骤</div> -->
+      <!-- List group -->
+<!--       <ol class="list-group"> -->
+         <?php// echo $data['detail']?>
+<!--       </ol> -->
+<!-- </div> -->
+<!-- </div> -->

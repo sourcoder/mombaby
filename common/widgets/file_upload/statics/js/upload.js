@@ -42,7 +42,7 @@
 			//验证文件大小
 			var fileSize = that[0].files[0].size;
 			if(fileSize > settings.maxSize){
-				alert('文件超出规定大小');
+				alert('文件超出规定大小1'+fileSize);
 				return false;
 			}
 

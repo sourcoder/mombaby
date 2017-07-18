@@ -11,7 +11,7 @@ use frontend\models\WechatUser;
 class WechatController extends Controller
 {
     /**
-     * 主入口
+     * 我的信息菜单入口
      */
     public function actionUser()
     {
@@ -91,6 +91,80 @@ class WechatController extends Controller
             $this->redirect(["person/info", 'id' => $id]);
         }
     }
+    /**
+     * 推荐菜谱的入口
+     */
+    public function actionRecipe()
+    {
+        $code = $_GET["code"];
+        if($code == '2')
+        {
+            $redirect_uri = "http://www.sdorms.com/wechat/recipe?code=2";
+            $redirect_uri = urlencode($redirect_uri);
+            $appid = Yii::$app->params['wechat']['appid'];
+            $appsecret = Yii::$app->params['wechat']['appsecret'];
+            $url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$redirect_uri}&response_type=code&scope=snsapi_userinfo&state=1#wechat_redirect";
+            $this->redirect($url);//重定向后得到code
+        }else
+        {
+            $state = $_GET["state"];
+            $access_token = $this->getAccesstoken($code, $state);
+            //检验授权凭证（access_token）是否有效
+            $data = $this->checkAvail($access_token['access_token'],$access_token['openid']);
+            if($data['errcode'] != '0' || $data['errmsg'] != 'ok')
+            {
+                //刷新access_token
+                $access_token = $this->refresh_access_token($access_token['refresh_token']);
+            }
+            //得到拉取用户信息(需scope为 snsapi_userinfo)
+            $userinfo = $this->get_user_info($access_token['access_token'],$access_token['openid']);
+            $openid = $userinfo['openid'];
+            //检查用户是否已经存在于数据表中
+            $user_check = WechatUser::find()->where(['openid'=>$openid])->one();
+            if ($user_check)
+            {
+                /*-------wechat User 表中的数据---------*/
+                //更新用户资料
+                $user_check->nickname = $userinfo['nickname'];
+                $user_check->sex = $userinfo['sex'];
+                $user_check->headimgurl = $userinfo['headimgurl'];
+                $user_check->country = $userinfo['country'];
+                $user_check->province = $userinfo['province'];
+                $user_check->city = $userinfo['city'];
+                $user_check->access_token = $access_token['access_token'];
+                $user_check->refresh_token = $access_token['refresh_token'];
+                $user_check->update();
+                $id = $user_check->id;
+            }
+            else
+            {
+                /*-------wechat User 表中的数据---------*/
+                //保存用户资料
+                $user = new WechatUser();
+                $user->nickname = $userinfo['nickname'];
+                $user->sex = $userinfo['sex'];
+                $user->headimgurl = $userinfo['headimgurl'];
+                $user->country = $userinfo['country'];
+                $user->province = $userinfo['province'];
+                $user->city = $userinfo['city'];
+                $user->access_token = $access_token['access_token'];
+                $user->refresh_token = $access_token['refresh_token'];
+                $user->openid = $openid;
+                $user->created_at = time();
+                $user->save();
+                $id = $user->id;
+            }
+            if($user_check && $user_check->current_week)
+            {
+                $this->redirect(['person/index', 'id' => $id]);
+            }else {
+                $this->redirect(['person/info', 'id' => $id]);
+            }
+        
+        }
+    }
+    
+   
     /*
      * 第二步：由code得到access_token
      */

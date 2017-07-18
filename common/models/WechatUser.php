@@ -56,6 +56,7 @@ class WechatUser extends \yii\db\ActiveRecord
      */
     const SCENARIOS_SAVE_ADVANCED_INFO = 'save_advanced_info';
     const SCENARIOS_SAVE_BASIC_INFO = 'save_basic_info';
+    const SCENARIOS_UPDATE_CURRENT_WEEK = 'update_current_week';
     
     /*
      * 场景设置
@@ -63,8 +64,10 @@ class WechatUser extends \yii\db\ActiveRecord
     public function scenarios()
     {
         $scenarios = [
-            self::SCENARIOS_SAVE_ADVANCED_INFO	 => ['tall', 'weight', 'age', 'last_menses_time', 'due_date','current_month','current_week'],
+          //  self::SCENARIOS_SAVE_ADVANCED_INFO	 => ['tall', 'weight', 'age', 'last_menses_time'],
+            self::SCENARIOS_SAVE_ADVANCED_INFO	 => [ 'age', 'last_menses_time'],
             self::SCENARIOS_SAVE_BASIC_INFO => ['openid', 'nickname', 'headimgurl', 'country', 'province', 'city', 'access_token'],
+            self::SCENARIOS_UPDATE_CURRENT_WEEK => ['current_week', 'current_month']
         ];
         return array_merge(parent::scenarios(),$scenarios);
     }

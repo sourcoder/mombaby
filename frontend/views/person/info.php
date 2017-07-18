@@ -1,5 +1,5 @@
 <?php
-$this->title = "个人推荐";
+$this->title = "个人信息";
 use yii\widgets\ActiveForm;
 use yii\helpers\Html;
 use kartik\date\DatePicker;
@@ -14,12 +14,7 @@ use kartik\date\DatePicker;
     <div><p class="text-center">hello <span><?=$model->nickname?></span></p></div>
 </div>
 <?php $form = ActiveForm::begin(['method'=>'post',]); ?>
-<div>
-    <?=$form->field($model, 'tall')->textInput([]) ?>
-</div>
-<div>
-    <?=$form->field($model, 'weight')->textInput([]) ?>
-</div>
+
 <div>
     <?=$form->field($model, 'age')->textInput([]) ?>
 </div>
@@ -29,7 +24,7 @@ use kartik\date\DatePicker;
     'pluginOptions' => [ 
         'autoclose' => true, 
         'todayHighlight' => true, 
-        'endDate' =>'0d',
+        'endDate' =>'-28d',
         'format' => 'yyyy-mm-dd', 
     ] 
 ]); ?>

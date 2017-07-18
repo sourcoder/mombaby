@@ -21,7 +21,7 @@
  		var from=$('#upfile').attr('from');
  		var thisUrl = $('.'+from).parent().attr('data-url');
         var thisType = $(this).attr('filetype'),        
- 			maxSize  = 1*1024*1024;
+ 			maxSize  = 2*1024*1024;
  		$(this).upload({
  			url     : thisUrl,
  			maxSize : maxSize,
